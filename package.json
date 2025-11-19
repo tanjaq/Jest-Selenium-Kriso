@@ -12,7 +12,6 @@
   "author": "Tatjana Kirotar",
   "license": "ISC",
   "dependencies": {
-    "chromedriver": "^135.0.0",
     "jest": "^29.7.0",
     "selenium-webdriver": "^4.30.0"
   }

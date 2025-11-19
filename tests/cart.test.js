@@ -1,12 +1,10 @@
 const { Builder, By } = require('selenium-webdriver')
-const chrome = require('selenium-webdriver/chrome');
+const firefox = require('selenium-webdriver/firefox');
 let Homepage = require('../pageobjects/homePage');
-let Cartpage = require('../pageobjects/homePage');
-
-require('chromedriver')
+let Cartpage = require('../pageobjects/cartPage');
 
 let driver; 
-const TIMEOUT = 10000;
+const TIMEOUT = 30000;
 let cartSumOfOne = 0; 
 let cartSumOfTwo = 0; 
 
@@ -16,9 +14,9 @@ describe('Shopping cart workflow', () => {
   //use beforeEach when you need action before EACH test
 
   beforeAll( async () => {
-    driver = await new Builder().forBrowser('chrome')
+    driver = await new Builder().forBrowser('firefox')
     //uncomment if you want to run in headless mode
-    //.setChromeOptions(new chrome.Options().addArguments('--headless'))
+    .setFirefoxOptions(new firefox.Options().addArguments('--headless'))
     .build()
     await driver.manage().window().maximize()
     await driver.manage().setTimeouts({ implicit: TIMEOUT })
@@ -26,7 +24,7 @@ describe('Shopping cart workflow', () => {
     Homepage = new Homepage(driver)
     await Homepage.openUrl()
     await Homepage.acceptCookies()
-  });
+  }, TIMEOUT);
   
   afterAll( async () => {
     //uncomment if you want to close the browser in the end
