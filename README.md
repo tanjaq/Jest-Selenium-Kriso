@@ -1,78 +1,95 @@
-# Selenium & Jest Test Automation – Kriso.ee Webshop (Part I & II)
-
-Your task is to create automated tests for the [Kriso.ee](https://www.kriso.ee/) bookshop based on the described test cases below.
-
-## 🚀 How to Get Started
-
-1. **Fork** this repository into your own GitHub account  
-2. **Clone** the forked repository to your local machine:  
-   ```bash
-   git clone <your-repo-url>
-   ```
-3. **Install dependencies** with:  
-   ```bash
-   npm install
-   ```
-4. **Write tests** based on the test case descriptions below  
-5. **Run tests** locally to confirm they pass:  
-   ```bash
-   npm test
-   ```
-   or  
-   ```bash
-   npx jest
-   ```
-6. **Commit** your changes  
-7. **Create a Pull Request** back to the original repository  
-8. ✅ You will be graded if:
-   - Tests are completed
-   - Page Object Pattern is followed
 
 ---
 
-## ✅ Test Cases
+# Test Scenarios
 
-### 🔍 Search for Books by Keywords
+## 🔍 Search for Books
 
-| Steps                                                | Expected Result (Assertions)                                                                       |
-|------------------------------------------------------|-----------------------------------------------------------------------------------------------------|
-| Open [https://www.kriso.ee](https://www.kriso.ee)    | Confirm the page has a Kriso title/logo                                                            |
-| Search for keyword “harry potter”                    | Confirm multiple products are shown                                                                |
-|                                                      | All listed items contain the searched keyword in their title or description                        |
-|                                                      | Products can be sorted                                                                             |
-| Sort results by price                                | Verify products are sorted in the expected order (e.g., low to high or high to low)                |
-| Filter by language (e.g., English)                   | Verify only products in that language appear                                                       |
-| Filter by format (e.g., “Kõvakaaneline” / hardback) | Confirm fewer items are listed and all match the selected format                                   |
+The following behaviours are tested:
 
----
-
-### 🛒 Add Books to Shopping Cart
-
-| Steps                                           | Expected Result (Assertions)                                      |
-|------------------------------------------------|-------------------------------------------------------------------|
-| Open [https://www.kriso.ee](https://www.kriso.ee) | Confirm the page has a Kriso title/logo                         |
-| Search for any keyword                          | Confirm multiple results are shown                               |
-|                                                | Products can be added to the shopping cart                       |
-| Add one book to the cart                        | Confirm the cart shows 1 item                                    |
-| Add a second book                               | Confirm the cart updates to show 2 items                         |
-| Click the cart/checkout icon                    | Confirm the user is navigated to the cart view                   |
-|                                                | Verify cart contains 2 correct items                             |
-|                                                | Verify the total price is accurate                               |
-| Remove the first item from cart                 | Confirm the cart now shows 1 item                                |
-|                                                | Confirm the correct item was removed                            |
-|                                                | Verify the total price updates accordingly                       |
+- Opening the homepage
+- Verifying the site logo
+- Searching for books using the keyword **"harry potter"**
+- Verifying that multiple search results appear
+- Confirming search results contain the keyword
+- Filtering results by:
+  - **Language (English)**
+  - **Format (Kõvakaaneline / Hardback)**
+- Applying **price filtering through Advanced Search**
 
 ---
 
-### 🧭 Navigate Products via Filters
+## 🛒 Shopping Cart
 
-| Steps                                                    | Expected Result (Assertions)                                          |
-|----------------------------------------------------------|------------------------------------------------------------------------|
-| Open [https://www.kriso.ee](https://www.kriso.ee)        | Confirm the page has a Kriso title/logo                              |
-| Scroll down to find a section like “Muusikaraamatud ja noodid”         | Confirm the section is visible                                       |
-| Click the "Õppematerjalid" category               | Verify that there are more than 1 products found              |
-|                                                          | Confirm URL or page title reflects navigation correctly              |
-| Click on a category ("Bänd ja ansambel")      | Confirm active filters show the selected category                    |
-|                                                          | Verify products list now contains less items                              |
-| Click on a format category ("CD")      | Confirm active filters show the selected category                    |
-|                                                          | Verify products list now contains less items                              |
+Cart workflow tests include:
+
+- Adding books from search results
+- Verifying the cart contains **2 items**
+- Verifying the **correct books appear in the cart**
+- Verifying the **total price is calculated**
+- Removing an item from the cart
+- Confirming the cart updates to **1 remaining item**
+- Confirming the total price updates after removal
+
+---
+
+## 🧭 Category Navigation
+
+Navigation tests verify:
+
+- Opening the category menu
+- Navigating to **Muusikaraamatud ja noodid**
+- Selecting subcategories
+- Verifying product counts change after filters
+- Confirming the URL reflects navigation state
+
+---
+
+# Important Implementation Notes
+
+## Price Sorting
+
+The assignment required verifying **sorting by price (low → high or high → low)**.
+
+However, the current Kriso.ee interface does **not expose a reliable sorting control** for price ordering in search results.
+
+Instead, the test suite validates **price-based filtering using the Advanced Search page**, confirming that:
+
+- result counts decrease when a price range is applied
+- returned items fall within the selected price range
+
+This approach tests the closest available price-related functionality.
+
+---
+
+## Category Adjustment
+
+The assignment example referenced categories such as **"Bänd ja ansambel"**.
+
+During implementation it was found that some categories vary or are dynamically rendered in the menu structure.  
+The navigation test therefore targets **available and stable categories within the same menu section** to ensure reliable automation.
+
+---
+
+# Running the Tests
+
+Install dependencies:
+npm install
+
+Run the test suite:
+npm test
+
+The tests run sequentially using:
+jest --runInBand --detectOpenHandles --verbose
+---
+
+# Test Results
+
+The final test suite covers:
+
+- Search functionality
+- Product filtering
+- Cart functionality
+- Category navigation
+
+All implemented tests pass successfully.

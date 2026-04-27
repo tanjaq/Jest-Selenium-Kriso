@@ -4,16 +4,15 @@
   "description": "Testing Waterstones webshop with Selenium and Jest tests.",
   "main": "index.js",
   "scripts": {
-    "test": "npx jest"
-  },
-  "jest": {
-    "testTimeout": 200000
+    "test": "jest --runInBand --detectOpenHandles --verbose"
   },
   "author": "Tatjana Kirotar",
   "license": "ISC",
   "dependencies": {
-    "chromedriver": "^135.0.0",
     "jest": "^29.7.0",
     "selenium-webdriver": "^4.30.0"
+  },
+  "devDependencies": {
+    "chromedriver": "^145.0.5"
   }
 }

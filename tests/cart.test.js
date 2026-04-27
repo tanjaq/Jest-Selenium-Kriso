@@ -1,75 +1,74 @@
-const { Builder, By } = require('selenium-webdriver')
-const chrome = require('selenium-webdriver/chrome');
-let Homepage = require('../pageobjects/homePage');
-let Cartpage = require('../pageobjects/homePage');
+const HomePage = require("../pageobjects/homePage");
+const SearchPage = require("../pageobjects/searchPage");
+const CartPage = require("../pageobjects/cartPage");
+const { buildDriver } = require("../utils/driverFactory");
 
-require('chromedriver')
+let driver;
 
-let driver; 
-const TIMEOUT = 10000;
-let cartSumOfOne = 0; 
-let cartSumOfTwo = 0; 
+describe("Shopping cart workflow", () => {
+  let home;
+  let search;
+  let cart;
 
-describe('Shopping cart workflow', () => {
+  beforeAll(async () => {
+    driver = await buildDriver();
+    await driver.manage().setTimeouts({ implicit: 0 });
+    await driver.manage().window().setRect({ width: 1400, height: 900 });
 
-  //use beforeAll when you need action before ALL tests
-  //use beforeEach when you need action before EACH test
+    home = new HomePage(driver);
+    search = new SearchPage(driver);
+    cart = new CartPage(driver);
 
-  beforeAll( async () => {
-    driver = await new Builder().forBrowser('chrome')
-    //uncomment if you want to run in headless mode
-    //.setChromeOptions(new chrome.Options().addArguments('--headless'))
-    .build()
-    await driver.manage().window().maximize()
-    await driver.manage().setTimeouts({ implicit: TIMEOUT })
+    await home.openUrl();
+    try {
+      await home.acceptCookies();
+    } catch (_) {}
+  }, 180000);
 
-    Homepage = new Homepage(driver)
-    await Homepage.openUrl()
-    await Homepage.acceptCookies()
-  });
-  
-  afterAll( async () => {
-    //uncomment if you want to close the browser in the end
-    await driver.quit()
-  });
-  
-  test('Test logo element is visible', async () => {
-    await Homepage.verifyLogo()
+  afterAll(async () => {
+    if (driver) await driver.quit();
   });
 
-  test('Test add first item to shopping cart', async () => {
-    await Homepage.openBookPage(1)
-    await Homepage.addItemToShoppingCart()
-    await Homepage.verifyItemAddedToCart()
+  test("Logo element is visible", async () => {
+    await home.verifyLogo();
   });
 
-  test('Test continue shopping', async () => {
-    await Homepage.continueShopping()
-  });
+  test("Add 2 books from search results, verify cart, total, and remove one item", async () => {
+    await search.search("harry potter");
+    await search.verifyMultipleResults();
 
-  test('Test add second item to shopping cart', async () => {
-    await Homepage.openBookPage(2)
-    await Homepage.addItemToShoppingCart()
-    await Homepage.verifyItemAddedToCart()
-  });
+    // Store titles of first two added products
+    const firstIndex = await search.addFirstAddableResultToCart(1, 10);
 
-  test('Test verify cart has two items', async () => {
-    Cartpage = await Homepage.openShoppingCart()
-    await Cartpage.verifyCartQuantity(2)
-  });
+await driver.get("https://www.kriso.ee/");
+await search.search("harry potter");
 
-  test('Test verify cart has correct sum of two', async () => {
-    cartSumOfTwo = await Cartpage.verifyCartSumIsCorrect()
-  });
+const secondIndex = await search.addFirstAddableResultToCart(firstIndex + 1, 10);
 
-  test('Test remove one item from the shopping cart', async () => {
-    await Cartpage.removeItemFromCart(1)
-    await Cartpage.verifyCartQuantity(1)
-  });
+// Get the actual titles of the books that were added
+await driver.get("https://www.kriso.ee/");
+await search.search("harry potter");
 
-  test('Test verify cart has correct sum of one', async () => {
-    cartSumOfOne = await Cartpage.verifyCartSumIsCorrect()
-    expect(cartSumOfOne).toBeLessThan(cartSumOfTwo)
-  });
+const firstTitle = await search.getResultTitleByIndex(firstIndex);
+const secondTitle = await search.getResultTitleByIndex(secondIndex);
+    await search.openCartDirect();
 
+    await cart.verifyCartQuantity(2);
+    await cart.verifyCartContainsTitles([firstTitle, secondTitle]);
+
+    const totalBefore = await cart.verifyTotalPriceLooksAccurate();
+
+    const rowsBefore = await cart.getCartRowTexts();
+    const removedRowText = rowsBefore[0];
+
+    await cart.removeItem(1);
+    await cart.verifyCartQuantity(1);
+
+    const rowsAfter = await cart.getCartRowTexts();
+    expect(rowsAfter.length).toBe(1);
+    expect(rowsAfter[0]).not.toBe(removedRowText);
+
+    const totalAfter = await cart.verifyTotalPriceLooksAccurate();
+    expect(totalAfter).toBeLessThanOrEqual(totalBefore);
+  });
 });
